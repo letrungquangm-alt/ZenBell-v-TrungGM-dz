@@ -2,7 +2,7 @@
 // LOGIC GAME MA SÓI (ONLINE) - HOÀN CHỈNH BẤT BẠI
 // =========================================
 
-var currentWwRoomId = null;
+let currentWwRoomId = null;
 let currentWwPlayerId = null;
 let isWwHost = false;
 let wwMode = "basic";
@@ -24,27 +24,45 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// Hàm chặn Tab Trùng gắn vào Tụ Nghĩa Đường
-const originalOpenNameInput = window.openOnlineNameInput;
-window.openOnlineNameInput = function() {
+// --- UI FLOW: VÀO HUB ONLINE ---
+function safeOpenOnlineHub() {
     let activeTab = localStorage.getItem('ww_active_tab');
     if (activeTab && activeTab !== myTabId) {
         customAlert("THÔNG BÁO", "Bạn đã đăng nhập ở trình duyệt này rồi! Xin hãy dùng tab cũ hoặc mở Ẩn danh.", "HỒI CUNG");
         return;
     }
     localStorage.setItem('ww_active_tab', myTabId);
-    if(originalOpenNameInput) originalOpenNameInput();
-};
+    playSfx('click'); 
+    openModal('overlay-online-name'); // Mở bảng báo danh
+}
 
-window.exitOnlineHub = function(modalId) {
+function proceedToOnlineGames() { 
+    const nameInput = document.getElementById('global-online-name').value.trim(); 
+    if (!nameInput) { 
+        customAlert("THÁNH CHỈ", "Danh xưng không được để trống!", "TUÂN CHỈ"); 
+        return; 
+    } 
+    playSfx('click'); 
+    window.onlinePlayerName = nameInput; // Lưu tên vào biến toàn cục
+    document.getElementById('display-greeting-name').innerText = "Chào bạn, " + window.onlinePlayerName + "!"; 
+    closeModal('overlay-online-name'); 
+    openModal('overlay-online-games'); 
+}
+
+function exitOnlineHub(modalId) {
     playSfx('click');
     if(localStorage.getItem('ww_active_tab') === myTabId) {
         localStorage.removeItem('ww_active_tab');
     }
     closeModal(modalId);
-};
+}
 
-// --- UI FLOW ---
+function showUpdatingModal() { 
+    playSfx('click'); 
+    customAlert("THÔNG BÁO", "Bí cảnh này đang được kiến tạo, vui lòng quay lại sau!", "ĐÃ RÕ");
+}
+
+// --- UI FLOW: MENU MA SÓI ---
 function openWwMenu() {
     playSfx('click'); closeModal('overlay-online-games'); openModal('overlay-ww-menu');
 }
@@ -62,12 +80,12 @@ function showWwJoin() {
     loadPublicRooms(); 
 }
 
-window.closeWwJoinModal = function() {
+function closeWwJoinModal() {
     playSfx('click');
     database.ref('rooms').off('value'); 
     closeModal('overlay-ww-join'); 
     openModal('overlay-ww-menu');
-};
+}
 
 function uiSelectWwMode(mode) {
     wwMode = mode;
@@ -107,7 +125,7 @@ function uiSelectVisibility(vis) {
     }
 }
 
-// --- TẠO PHÒNG CÓ ĐẶT TÊN (TỰ ĐỘNG CẤP NẾU TRỐNG) ---
+// --- TẠO PHÒNG CÓ ĐẶT TÊN ---
 function executeCreateRoom() {
     if (wwVisibility === 'private') {
         const pwdInput = document.getElementById('ww-create-password');
@@ -123,7 +141,6 @@ function executeCreateRoom() {
     database.ref('rooms').once('value', (snap) => {
         const rooms = snap.val() || {};
         
-        // Nếu người chơi bỏ trống tên, tự động cấp Phòng 1, Phòng 2...
         if (!customName) {
             let maxNum = 0;
             for(let r in rooms) {
@@ -138,13 +155,13 @@ function executeCreateRoom() {
         
         wwRoomName = customName;
         const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const rId = "masoi:" + randomCode; // Tiền tố linh hoạt cho sau này
+        const rId = "masoi:" + randomCode; 
         
         joinRoomProcess(rId, true);
     });
 }
 
-// --- TÌM PHÒNG CÔNG KHAI (HIỆN DANH SÁCH PHÒNG CÓ TÊN) ---
+// --- TÌM PHÒNG CÔNG KHAI (REALTIME) ---
 function loadPublicRooms() {
     const listDiv = document.getElementById('ww-public-rooms-list');
     if(!listDiv) return;
@@ -164,7 +181,6 @@ function loadPublicRooms() {
                 let shortId = rId.split(':')[1] || rId;
                 let modeName = r.mode === 'basic' ? 'Cơ Bản' : 'Mở Rộng';
                 
-                // Hiển thị tên phòng (rName) rõ ràng ở đây
                 htmlStr += `
                     <div style="background: rgba(0,0,0,0.6); border: 1px solid #d4af37; padding: 10px; border-radius: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -185,7 +201,6 @@ function executeJoinPublicCode() {
     let inputVal = document.getElementById('join-public-id').value.trim();
     if(!inputVal) { customAlert("THÔNG BÁO", "Vui lòng nhập mã phòng!", "OK"); return; }
     
-    // Xử lý thông minh: Dù người chơi gõ 123456 hay masoi:123456 thì vẫn vào được
     let cleanCode = inputVal.replace("masoi:", "");
     let rId = "masoi:" + cleanCode; 
 
@@ -285,7 +300,9 @@ function finalizeJoinRoomUI() {
         btnReady.innerText = "CHƯA SẴN SÀNG"; btnReady.style.background = "#f39c12";
     }
     
-    let pName = typeof onlinePlayerName !== 'undefined' && onlinePlayerName !== "" ? onlinePlayerName : "Khách";
+    // Lấy tên từ file firebase.js
+    let pName = typeof window.onlinePlayerName !== 'undefined' && window.onlinePlayerName !== "" ? window.onlinePlayerName : "Khách";
+    
     const playerRef = database.ref(`rooms/${currentWwRoomId}/players/${currentWwPlayerId}`);
     playerRef.set({ name: pName, isHost: isWwHost, role: '', isReady: isWwHost, hasRevealed: false, status: 'online' }); 
     
@@ -348,14 +365,12 @@ function setupLobbyListeners() {
             if (!p.isHost && !p.isReady) allReady = false;
         } 
         
-        if (isWwHost) {
-            const startBtn = document.getElementById('btn-start-ww-game');
-            if(startBtn) {
-                if (allReady) {
-                    startBtn.disabled = false; startBtn.className = "btn-core ui-btn btn-unlocked"; startBtn.innerText = "BẮT ĐẦU TRÒ CHƠI";
-                } else {
-                    startBtn.disabled = true; startBtn.className = "btn-core ui-btn btn-locked"; startBtn.innerText = "BẮT ĐẦU (CHỜ SẴN SÀNG)";
-                }
+        const startBtn = document.getElementById('btn-start-ww-game');
+        if (isWwHost && startBtn) {
+            if (allReady) {
+                startBtn.disabled = false; startBtn.className = "btn-core ui-btn btn-unlocked"; startBtn.innerText = "BẮT ĐẦU TRÒ CHƠI";
+            } else {
+                startBtn.disabled = true; startBtn.className = "btn-core ui-btn btn-locked"; startBtn.innerText = "BẮT ĐẦU (CHỜ SẴN SÀNG)";
             }
         }
     }); 
@@ -371,6 +386,7 @@ function setupLobbyListeners() {
     }
 }
 
+// --- BẢNG THÔNG BÁO COPY ĐẸP MẮT ---
 function copyRoomId() {
     let copyText = "Mã phòng: " + (currentWwRoomId ? currentWwRoomId.split(':')[1] : "");
     let successMsg = "Bạn đã sao chép thành công ID phòng";
