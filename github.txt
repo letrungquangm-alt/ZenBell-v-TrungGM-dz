@@ -52,5 +52,9 @@ ctrl + k o, Chọn đúng cái thư mục ZenBell-v-TrungGM-dz vừa tải về.
 ======================================
 tải toàn bộ project không cần lên git
 ======================================
+(lưu ý trước khi dù lệnh này thì phải cd cái project đó ví dụ "cd ZenBell-v-TrungGM-dz" rồi mới dùng lệnh dưới được)
+
+cd ZenBell-v-TrungGM-dz
 git pull origin <tên_nhánh> ví dụ git pull origin main
 ======================================
+clear để xóa cho sạch
