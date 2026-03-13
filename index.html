@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đế Nhất Bình Thiên Hạ</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+    <div id="welcome-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 999999 !important; font-family: 'Arial', sans-serif;">
+        <div style="background: #2b0000; padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 400px; box-shadow: 0 0 20px #ffd700; border: 2px solid #ffd700;">
+            <h2 style="color: #ffd700; margin-bottom: 15px; text-transform: uppercase;">Thánh Chỉ Khởi Miếu</h2>
+            <p style="color: #fff8dc; line-height: 1.6; margin-bottom: 25px;">
+                Hoan nghênh ngài tiến vào Đế Nhất Bình Thiên Hạ. 
+                Hãy kích hoạt thanh âm để trải nghiệm trọn vẹn vượng khí hoàng gia!
+            </p>
+            <button id="close-modal-btn" onclick="document.getElementById('welcome-modal').style.display='none'; try{ initSound(); playMasterMusic('menu'); }catch(e){ console.log('Đang nạp JS...'); }" style="background: #d4af37; color: #2b0000; border: none; padding: 12px 30px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 0 #8a6a1c; text-transform: uppercase;">
+                Tiếp Chỉ 📜
+            </button>
+        </div>
+    </div>
+
+    <div id="bg-overlay"></div>
+    <div id="water-drop-fx"></div>
+    <div id="glow-transition"></div>
+    <div id="settings-trigger-btn" class="ui-btn" onclick="openModal('overlay-settings')">⚙️</div>
+
+    <div style="position: absolute; top: -50px; left: -50px; width: 10px; height: 10px; opacity: 0.01; z-index: -1000; pointer-events: none; overflow: hidden;">
+        <div id="youtube-player-container"></div>
+    </div>
+    <audio id="local-audio-player" style="display:none;"></audio>
+
+    <div id="ww-transition-text" class="ww-transition-text"></div>
+
+    <div id="main-hub-screen" class="screen-container" style="display: flex;">
+        <div class="title-wrapper">
+            <h1 class="title-main">Đế Nhất<br>Bình Thiên Hạ</h1>
+            <p class="title-sub">CHỌN THÚ VUI TIÊU KHIỂN</p>
+        </div>
+        
+        <div class="menu-btn-group">
+            <button class="btn-core btn-scale-odd ui-btn" onclick="hubClick('duaxi', this)">
+                TRANH BÁ (ĐUA XÌ)
+            </button>
+            <button class="btn-core btn-scale-even ui-btn" onclick="hubClick('minigame', this)">
+                BÁCH HÍ (MINI GAMES)
+            </button>
+           <button class="btn-core btn-scale-odd ui-btn" onclick="openOnlineNameInput()">
+            TỤ NGHĨA ĐƯỜNG
+            </button>
+        </div>
+    </div>
+
+    <div id="menu-screen" class="screen-container">
+        <div class="title-wrapper">
+            <h1 class="title-main">Tranh Bá</h1>
+            <p class="title-sub">AI SẼ LÀM VUA?</p>
+        </div>
+        <div class="menu-btn-group">
+            <button class="btn-core btn-scale-odd ui-btn" onclick="navigateMenu('normal', this)">THƯỜNG DÂN (ĐẤU LẺ)</button>
+            <button class="btn-core btn-scale-even ui-btn" onclick="navigateMenu('tournament', this)">QUẦN HÙNG (GIẢI ĐẤU)</button>
+            <button class="btn-core btn-back-hub ui-btn" onclick="navigateMainMenu('main-hub-screen', this)">HỒI CUNG</button>
+        </div>
+    </div>
+
+    <div id="mini-game-menu-screen" class="screen-container">
+        <div class="title-wrapper">
+            <h1 class="title-main" style="background: linear-gradient(90deg, #ffd700, #ffdf00, #ffd700); -webkit-background-clip: text;">Bách Hí</h1>
+            <p class="title-sub" style="color:#f1c40f;">GIẢI KHUÂY TIÊU SẦU</p>
+        </div>
+        <div class="menu-btn-group">
+            <button class="btn-core btn-scale-odd ui-btn" style="background:#2ecc71; box-shadow: 0 8px 0px #1e824c;" onclick="showDifficulty('snake')">🐍 NGỰ XÀ</button>
+            <button class="btn-core btn-scale-even ui-btn" style="background:#9b59b6; box-shadow: 0 8px 0px #673ab7;" onclick="showDifficulty('tetris')">🧱 XẾP THÀNH</button>
+            <button class="btn-core btn-scale-odd ui-btn" style="background:#f1c40f; box-shadow: 0 8px 0px #f39c12;" onclick="launchMiniGame('chicken')">🐔 BẮN KÊ</button>
+            <button class="btn-core btn-back-hub ui-btn" onclick="navigateMainMenu('main-hub-screen', this)">HỒI CUNG</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen-container" style="padding-top: 20px;">
+        <button class="btn-core btn-back-hub ui-btn" style="width: 120px; height: 35px; font-size: 12px; position: absolute; top: 10px; left: 10px; margin: 0; z-index: 100;" onclick="quitToScreen('menu-screen')">HỒI CUNG</button>
+        
+        <div class="board-container" id="game-board">
+            <div id="visual-grid" class="visual-grid"></div>
+            <div id="entity-layer"></div>
+        </div>
+        
+        <div class="bottom-control-area">
+            <div class="deck-wrapper-3d" onclick="executeCardDraw()" id="deck-wrapper-3d">
+                <div class="deck-rotator" id="deck-rotator-node">
+                    <div class="deck-card-face face-back" id="deck-back-face"></div>
+                    <div class="deck-card-face face-front" id="drawn-card-result"></div>
+                </div>
+            </div>
+            <p id="system-status-msg"></p>
+        </div>
+    </div>
+
+    <div id="snake-screen" class="screen-container">
+        <div class="arcade-container">
+            <div class="game-header-bar">
+                <span>🐍 NGỰ XÀ</span><span id="snake-score">Điểm: 0</span>
+            </div>
+            <div class="canvas-area">
+                <canvas id="snake-canvas" width="300" height="450"></canvas>
+                <div class="game-over-overlay" id="snake-go">
+                    <div class="game-over-text">TỬ TRẬN!</div>
+                    <div class="final-score-text" id="snake-final-score">Điểm: 0</div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-core ui-btn" style="width:120px; height:45px; font-size:14px;" onclick="SnakeGame.startReal()">TÁI CHIẾN</button>
+                        <button class="btn-core btn-back-hub ui-btn" style="width:120px; height:45px; font-size:14px; margin:0;" onclick="quitToScreen('mini-game-menu-screen')">HỒI CUNG</button>
+                    </div>
+                </div>
+            </div>
+            <div class="arcade-controls-panel" style="justify-content: center;">
+                <div class="dpad-container">
+                    <button class="ctrl-btn btn-up-class" id="btn-up-snake">▲</button>
+                    <button class="ctrl-btn btn-left-class" id="btn-left-snake">◀</button>
+                    <button class="ctrl-btn btn-down-class" id="btn-down-snake">▼</button>
+                    <button class="ctrl-btn btn-right-class" id="btn-right-snake">▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tetris-screen" class="screen-container">
+        <div class="arcade-container">
+            <div class="game-header-bar">
+                <span>🧱 XẾP THÀNH</span><span id="tetris-score">Điểm: 0</span>
+            </div>
+            <div class="canvas-area">
+                <canvas id="tetris-canvas" width="240" height="480"></canvas>
+                <div class="game-over-overlay" id="tetris-go">
+                    <div class="game-over-text">ĐẦY THÀNH!</div>
+                    <div class="final-score-text" id="tetris-final-score">Điểm: 0</div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-core ui-btn" style="width:120px; height:45px; font-size:14px;" onclick="TetrisGame.startReal()">TÁI CHIẾN</button>
+                        <button class="btn-core btn-back-hub ui-btn" style="width:120px; height:45px; font-size:14px; margin:0;" onclick="quitToScreen('mini-game-menu-screen')">HỒI CUNG</button>
+                    </div>
+                </div>
+            </div>
+            <div class="arcade-controls-panel">
+                <div class="dpad-container">
+                    <button class="ctrl-btn btn-up-class" id="btn-up-tetris">▲</button>
+                    <button class="ctrl-btn btn-left-class" id="btn-left-tetris">◀</button>
+                    <button class="ctrl-btn btn-down-class" id="btn-down-tetris">▼</button>
+                    <button class="ctrl-btn btn-right-class" id="btn-right-tetris">▶</button>
+                </div>
+                <div class="action-container">
+                    <button class="btn-a-class" id="btn-a-tetris">A</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="chicken-screen" class="screen-container">
+        <div class="arcade-container" style="box-shadow: 0 0 30px rgba(243,156,18,0.3); border-color: #f39c12;">
+            <div class="game-header-bar" style="border-color: #f39c12;">
+                <span>🐔 KÊ TẶC XÂM LĂNG</span><span id="chicken-score">Điểm: 0 | ❤️ 10</span>
+            </div>
+            <div class="canvas-area">
+                <canvas id="chicken-canvas" width="320" height="680"></canvas>
+                <div class="game-over-overlay" id="chicken-go">
+                    <div class="game-over-text">TRÚNG CHIÊU!</div>
+                    <div class="final-score-text" id="chicken-final-score">Điểm: 0</div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-core ui-btn" style="width:120px; height:45px; font-size:14px; background:#f39c12; box-shadow:0 6px 0 #b9770e;" onclick="ChickenGame.start()">TÁI CHIẾN</button>
+                        <button class="btn-core btn-back-hub ui-btn" style="width:120px; height:45px; font-size:14px; margin:0;" onclick="quitToScreen('mini-game-menu-screen')">HỒI CUNG</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-custom-alert">
+        <div class="dialog-box" style="text-align: center;">
+            <h2 style="color:var(--game-text-color); margin-bottom:20px; font-size: 26px; text-shadow: 0 0 10px var(--game-text-color);" id="alert-title"></h2>
+            <p style="font-size: 16px; line-height: 1.6; color: #fff; margin-bottom: 20px;" id="alert-text"></p>
+            <button class="btn-core ui-btn" style="width:100%; height:50px; font-size:16px;" id="alert-btn"></button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-difficulty">
+        <div class="dialog-box" style="width: 300px; padding: 20px;">
+            <div class="close-btn ui-btn" onclick="closeModal('overlay-difficulty')">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">CHỌN CẤP ĐỘ</h2>
+            <button class="diff-btn diff-1 ui-btn" onclick="selectDifficulty('easy')">DỄ NHƯ CHƠI</button>
+            <button class="diff-btn diff-2 ui-btn" onclick="selectDifficulty('normal')">BÌNH THƯỜNG</button>
+            <button class="diff-btn diff-3 ui-btn" onclick="selectDifficulty('hard')">HƠI GAY GO</button>
+            <button class="diff-btn diff-4 ui-btn" onclick="selectDifficulty('expert')">TỬ CHIẾN</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-names">
+        <div class="dialog-box" style="background: transparent; border: none; box-shadow: none;">
+            <h2 style="color:var(--game-text-color); margin-bottom:25px; font-size: 28px; text-align: center;">Danh Xưng Quần Hùng</h2>
+            <div class="name-inputs-wrapper" id="name-box">
+                <input type="text" id="player-name-0" placeholder="Tên Tướng Bích (♠)...">
+                <input type="text" id="player-name-1" placeholder="Tên Tướng Chuồn (♣)...">
+                <input type="text" id="player-name-2" placeholder="Tên Tướng Rô (♦)...">
+                <input type="text" id="player-name-3" placeholder="Tên Tướng Cơ (♥)...">
+                <button class="btn-core ui-btn" id="btn-start-tour" style="width:100%; margin-top:10px; opacity:0;" onclick="confirmPlayerNames()">XUẤT QUÂN</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-card-select">
+        <div class="dialog-box" style="background: transparent; border: none; box-shadow: none; width: 100%; max-width: 400px;">
+            <h2 style="color:var(--game-text-color); margin-bottom:40px; font-size: 32px; text-align: center; text-shadow: 0 0 20px var(--game-text-color);">Chọn Tướng Xuất Chiến</h2>
+            <div class="card-select-container">
+                <div class="selectable-card" style="background-image: url('./image/bich.png');" onclick="selectCardToRace(0, event)"></div>
+                <div class="selectable-card" style="background-image: url('./image/chuon.png');" onclick="selectCardToRace(1, event)"></div>
+                <div class="selectable-card" style="background-image: url('./image/ro.png');" onclick="selectCardToRace(2, event)"></div>
+                <div class="selectable-card" style="background-image: url('./image/co.png');" onclick="selectCardToRace(3, event)"></div>
+            </div>
+            <button class="btn-core ui-btn" style="width: 100%; height: 50px; font-size: 16px; margin-top: 50px; background: #6b0000; color: #ffd700;" onclick="closeModal('overlay-card-select'); document.getElementById('menu-screen').style.display='flex';">HỒI CUNG</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-victory">
+        <h1 class="victory-headline" id="victory-headline"></h1>
+        <div id="victory-card-podium"></div>
+        <h2 id="victory-player-name"></h2>
+        <div class="btn-row">
+            <button class="btn-core ui-btn" style="width:130px; height:55px; font-size:16px;" onclick="playAgain()">TÁI CHIẾN</button>
+            <button class="btn-core ui-btn" style="width:130px; height:55px; font-size:14px; background:#6b0000; color:#ffd700;" onclick="quitToScreen('menu-screen')">HỒI CUNG</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-settings">
+        <div class="dialog-box">
+            <div class="close-btn ui-btn" onclick="closeModal('overlay-settings')">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">TÙY CHỈNH CUNG MÔN</h2>
+            
+            <div class="settings-row">
+                <span>Nhạc Nền (BGM)</span>
+                <input type="range" id="vol-bgm" min="0" max="1" step="0.05" value="0.5">
+            </div>
+            <div class="settings-row">
+                <span>Âm Thanh (SFX)</span>
+                <input type="range" id="vol-sfx" min="0" max="1" step="0.05" value="0.7">
+            </div>
+            
+            <hr style="border:0.5px solid #6b0000; margin-bottom:12px;">
+            
+            <div class="settings-row"><span>Nền Web</span><input type="color" id="cfg-bg" value="#2b0000"></div>
+            <div class="settings-row"><span>Bàn Cờ</span><input type="color" id="cfg-board" value="#4a0000"></div>
+            <div class="settings-row"><span>Viền Bảng</span><input type="color" id="cfg-border" value="#ffd700"></div>
+            <div class="settings-row"><span>Màu Chữ</span><input type="color" id="cfg-text" value="#f1c40f"></div>
+            <div class="settings-row"><span>Nút Bấm</span><input type="color" id="cfg-btn" value="#d4af37"></div>
+            
+            <hr style="border:0.5px solid #6b0000; margin-bottom:12px;">
+            
+            <div class="settings-row">
+                <span>HÌNH NỀN</span>
+                <label class="file-label" id="lbl-bg">
+                    <span id="txt-bg">CHỌN ẢNH</span>
+                    <input type="file" id="upload-bg" hidden accept="image/*" onchange="updateFileLabel('upload-bg', 'txt-bg', 'lbl-bg')">
+                </label>
+            </div>
+            <div class="settings-row">
+                <span>MẶT ÚP BÀI</span>
+                <label class="file-label" id="lbl-card">
+                    <span id="txt-card">CHỌN ẢNH</span>
+                    <input type="file" id="upload-card" hidden accept="image/*" onchange="updateFileLabel('upload-card', 'txt-card', 'lbl-card')">
+                </label>
+            </div>
+            
+            <div style="display:flex; gap:8px; margin-top:15px;">
+                <button class="btn-core ui-btn" style="width:33.3%; height:40px; font-size:12px; background:#4a69bd; color:#fff; box-shadow:none;" onclick="openModal('overlay-rules')">LUẬT LỆ</button>
+                <button class="btn-core ui-btn" style="width:33.3%; height:40px; font-size:12px; background:#e74c3c; color:#fff; box-shadow:none;" onclick="clearSavedData()">XÓA DATA</button>
+                <button class="btn-core ui-btn" style="width:33.3%; height:40px; font-size:12px; background:#555; color:#fff; box-shadow:none;" onclick="quitToScreen('main-hub-screen'); closeModal('overlay-settings'); playMasterMusic('menu');">HỒI CUNG</button>
+            </div>
+            
+            <button class="btn-core ui-btn" id="btn-save-settings" style="width:100%; height:50px; font-size:18px; margin-top:15px;" onclick="executeSaveSettings()">LƯU THÁNH CHỈ</button>
+            <button class="btn-core ui-btn" style="width:100%; height:40px; margin-top:10px; background:#e67e22; color:#fff; font-size:14px; box-shadow:none;" onclick="openMusicLibraryModal()">🎵 KHO NHẠC TIÊN CUNG</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-music-lib">
+        <div class="dialog-box" style="width: 380px;">
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:5px;">🎵 NHẠC TIÊN CUNG</h2>
+            <div class="pagination-container" id="music-pagination"></div>
+            <div class="music-carousel-wrapper" id="music-carousel"></div>
+
+            <div class="stealth-player-panel" id="custom-player-ui" style="display: none;">
+                <div class="marquee-container">
+                    <div id="now-playing-text" class="marquee-content">🎵 Đang phát: ... 🎵</div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px;">
+                    <span class="stealth-time" id="current-time">00:00</span>
+                    <input type="range" id="music-seek-bar" class="stealth-seek" min="0" max="100" value="0" oninput="globalManualSeek(this.value)" style="flex: 1;">
+                    <span class="stealth-time" id="duration-time">00:00</span>
+                </div>
+
+                <div style="position: relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px;">
+                    <button class="stealth-btn ui-btn" id="btn-skip-ad" style="display:none; position: absolute; left: 0; color:#e74c3c; border:1px solid #e74c3c; border-radius:4px; padding:2px 4px; font-size: 9px;" onclick="skipYtAd()">⏭ S QC</button>
+                    
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <button class="stealth-btn ui-btn" style="color: #ffd700; font-size: 14px;" onclick="globalSeekRelative(-10)">-10</button>
+                        <button class="stealth-btn btn-play-stealth ui-btn" id="btn-play-pause" style="width: 35px; height: 35px; font-size: 16px;" onclick="globalTogglePlayPause()">▶</button>
+                        <button class="stealth-btn ui-btn" style="color: #ffd700; font-size: 14px;" onclick="globalSeekRelative(10)">+10</button>
+                    </div>
+
+                    <div id="speed-dragger" class="speed-drag-box" style="position: absolute; right: 0;" title="Vuốt ngang để đổi tốc độ">1.0x</div>
+                </div>
+            </div>
+
+            <p style="font-size:11px; color:#f1c40f; text-align:center; margin:10px 0;"><b style="color:#d4af37">[M]</b>: Nhạc Sảnh | <b style="color:cyan">[G]</b>: Nhạc Trận | <b style="color:#2ecc71">[∞]</b>: Cả Hai</p>
+            
+            <div class="music-actions-grid">
+                <div class="music-actions-row">
+                    <button class="btn-core ui-btn" id="btn-shuffle-music" style="width:48%; height:40px; font-size:13px; background:#2b0000; color:#ffd700; box-shadow:0 5px 0 #1a0000;" onclick="toggleShuffleMode()">TRÁO NHẠC</button>
+                    <label class="btn-core ui-btn" style="width:48%; height:40px; font-size:12px; cursor:pointer; display:flex; justify-content:center; align-items:center; color:#000;">
+                        <span id="upload-music-txt">TIẾN CỐNG NHẠC</span>
+                        <input type="file" id="upload-music-input" hidden accept="audio/*" onchange="handleMusicUpload(event)">
+                    </label>
+                </div>
+                <div class="music-actions-row">
+                    <button class="btn-core ui-btn" id="btn-delete-music" style="width:48%; height:40px; font-size:13px; background:#6b0000; color:#fff; box-shadow:0 5px 0 #3b0000;" onclick="toggleDeleteMode()">XÓA NHẠC</button>
+                    <button class="btn-core ui-btn" style="width:48%; height:40px; font-size:14px;" onclick="closeMusicModal()">HOÀN THÀNH</button>
+                </div>
+                <button class="btn-core ui-btn" id="btn-add-youtube" style="width:100%; height:40px; font-size:14px; background:#ff4757; color:#fff; box-shadow:0 5px 0 #bd2f3c; margin-top:0px; border: 2px solid #fff;" onclick="openYtLinkModal()">📺 TIẾN CỐNG YOUTUBE</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-name-input">
+        <div class="dialog-box" style="width: 340px;">
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">TÊN KHÚC NHẠC</h2>
+            <input type="text" id="custom-song-name" class="custom-input-field" placeholder="Tên bài...">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-core ui-btn" style="width:40%; height:45px; font-size:14px; background:#6b0000; color:#fff;" onclick="cancelMusicUpload()">BÃI BỎ</button>
+                <button class="btn-core ui-btn" style="width:60%; height:45px; font-size:14px;" onclick="confirmMusicUpload()">GHI DANH</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-yt-link">
+        <div class="dialog-box" style="width: 340px;">
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">TIẾN CỐNG YOUTUBE</h2>
+            <input type="text" id="yt-link-input" class="custom-input-field" placeholder="Dán đường dẫn (link) vào đây...">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-core ui-btn" style="width:40%; height:45px; font-size:14px; background:#6b0000; color:#fff;" onclick="closeModal('overlay-yt-link')">BÃI BỎ</button>
+                <button class="btn-core ui-btn" style="width:60%; height:45px; font-size:14px;" onclick="validateYtLink()">TIẾP TỤC</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-yt-name">
+        <div class="dialog-box" style="width: 340px;">
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">TÊN KHÚC NHẠC</h2>
+            <input type="text" id="yt-name-input" class="custom-input-field" placeholder="Tên bài nhạc...">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-core ui-btn" style="width:40%; height:45px; font-size:14px; background:#6b0000; color:#fff;" onclick="closeModal('overlay-yt-name')">BÃI BỎ</button>
+                <button class="btn-core ui-btn" style="width:60%; height:45px; font-size:14px;" onclick="confirmYtMusic()">GHI DANH</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-rules">
+        <div class="dialog-box">
+            <div class="close-btn ui-btn" onclick="closeModal('overlay-rules')">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">BỘ LẬT LỆ</h2>
+            <div class="tab-btn-group">
+                <button class="tab-btn active ui-btn" id="btn-tab-luat" onclick="switchTab('luat')">LUẬT GAME</button>
+                <button class="tab-btn ui-btn" id="btn-tab-choi" onclick="switchTab('choi')">CÁCH CHƠI</button>
+            </div>
+            <div class="tab-content active" id="tab-luat">
+                <p style="margin-bottom: 10px; color: #ff4757; font-weight: bold;">LUẬT PHẠT 3 LÁ:</p>
+                <p style="margin-bottom: 15px;">Rút liên tiếp 3 lá cùng chất thì lui binh 2 bước.</p>
+                <p style="margin-bottom: 10px; color: #ff4757; font-weight: bold;">LUẬT BLOCK (PHẠT CẶP):</p>
+                <ul style="padding-left: 15px; margin-top: 5px;">
+                    <li><span class="rule-hl">TH1:</span> ♣♣ - ♦♦ - ♣♣ -> Phạt ♣ lui 1 bước.</li>
+                    <li><span class="rule-hl">TH3:</span> ♣♣ - ♦♦ - ♣♣ - ♦♦ -> Phạt cả hai tướng.</li>
+                    <li><span class="rule-hl">TH4:</span> ♣♣ - ♦♦ - ♠ - ♣♣ -> Vẫn phạt ♣ lui 1 bước.</li>
+                    <li><span class="rule-hl">TH5:</span> ♣♣ - ♦♦ - ♠♠ - ♣♣ -> Hợp lệ xuất quân.</li>
+                </ul>
+            </div>
+            <div class="tab-content" id="tab-choi">
+                <p style="margin-bottom: 10px;"><span class="rule-hl">Mục tiêu:</span> Đưa tướng lĩnh (Át) về đích.</p>
+                <p style="margin-bottom: 10px;"><span class="rule-hl">Bị Phạt:</span> Bộ bài nháy đỏ. Chạm vào lá bài nháy đỏ để lui binh.</p>
+                <p style="margin-bottom: 10px;"><span class="rule-hl">Cột Bẫy (?):</span> Khi 4 tướng vượt bẫy -> bẫy nháy. Chạm mở: Không trùng (Lùi 1), Trùng 3 (Tiến 2), Trùng 4 (Tiến 1).</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-online-name">
+        <div class="dialog-box" style="width: 340px;">
+            <div class="close-btn ui-btn" onclick="exitOnlineHub('overlay-online-name')">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px; text-shadow: 0 0 10px var(--game-text-color);">TỤ NGHĨA ĐƯỜNG</h2>
+            <p style="color:#fff; text-align:center; margin-bottom: 10px; font-size: 14px;">Trước khi hội quân, xin ngài báo danh:</p>
+            <input type="text" id="global-online-name" class="custom-input-field" placeholder="Nhập danh xưng của ngài...">
+            <button class="btn-core ui-btn" style="width:100%; height:50px; font-size:16px;" onclick="proceedToOnlineGames()">TIẾN VÀO SẢNH</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-online-games">
+        <div class="dialog-box" style="width: 380px;">
+            <div class="close-btn ui-btn" onclick="exitOnlineHub('overlay-online-games')">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:5px;">CHỌN BÍ CẢNH</h2>
+            <p style="color:#f1c40f; text-align:center; margin-bottom: 10px; font-size: 13px;" id="display-greeting-name"></p>
+            
+            <div class="game-grid-5">
+                <button class="game-slot-btn ui-btn" onclick="openWwMenu()">1. MA SÓI</button>
+                <button class="game-slot-btn ui-btn" style="opacity: 0.6;" onclick="showUpdatingModal()">2. BÍ CẢNH SỐ 2</button>
+                <button class="game-slot-btn ui-btn" style="opacity: 0.6;" onclick="showUpdatingModal()">3. BÍ CẢNH SỐ 3</button>
+                <button class="game-slot-btn ui-btn" style="opacity: 0.6;" onclick="showUpdatingModal()">4. BÍ CẢNH SỐ 4</button>
+                <button class="game-slot-btn ui-btn" style="opacity: 0.6;" onclick="showUpdatingModal()">5. BÍ CẢNH SỐ 5</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-menu">
+        <div class="dialog-box" style="width: 340px;">
+            <div class="close-btn ui-btn" onclick="closeModal('overlay-ww-menu'); openModal('overlay-online-games');">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">MA SÓI BOT TỰ ĐỘNG</h2>
+            <button class="btn-core ui-btn" style="width:100%; height:45px; font-size:15px; margin-bottom: 15px; background: #e74c3c; color: #fff;" onclick="showWwCreate()">TẠO PHÒNG MỚI</button>
+            <button class="btn-core ui-btn" style="width:100%; height:45px; font-size:15px; background: #3498db; color: #fff;" onclick="showWwJoin()">VÀO PHÒNG SẴN CÓ</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-create">
+        <div class="dialog-box" style="width: 360px;">
+            <div class="close-btn ui-btn" onclick="closeModal('overlay-ww-create'); openModal('overlay-ww-menu');">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:20px;">KHAI TÔNG LẬP PHÁI</h2>
+
+            <div id="ww-step-1-mode">
+                <p style="color:#fff; text-align:center; margin-bottom:10px; font-size:14px;">Chọn luật lệ ván đấu:</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="btn-core ui-btn ww-mode-btn" id="btn-mode-basic" style="flex:1; height:45px; background:#555; color:#aaa; box-shadow:none;" onclick="uiSelectWwMode('basic')">CƠ BẢN</button>
+                    <button class="btn-core ui-btn ww-mode-btn" id="btn-mode-extend" style="flex:1; height:45px; background:#555; color:#aaa; box-shadow:none;" onclick="uiSelectWwMode('extend')">MỞ RỘNG</button>
+                </div>
+                <button class="btn-core ui-btn" id="btn-confirm-mode" style="width:100%; height:45px; background:#333; color:#777; cursor:not-allowed;" disabled onclick="uiGoToStep2()">XÁC NHẬN CHẾ ĐỘ</button>
+            </div>
+
+            <div id="ww-step-2-visibility" style="display:none;">
+                <p style="color:#fff; text-align:center; margin-bottom:5px; font-size:14px;">Tên phòng (Tùy chọn):</p>
+                <input type="text" id="ww-room-name-input" class="custom-input-field" placeholder="Nếu không đặt, hệ thống sẽ tự cấp..." style="margin-top:0; margin-bottom:15px; padding: 12px; font-size: 13px; text-align: center;">
+
+                <p style="color:#fff; text-align:center; margin-bottom:10px; font-size:14px;">Quy mô phòng:</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn-core ui-btn ww-vis-btn" id="btn-vis-public" style="flex:1; height:40px; background:#555; color:#aaa; box-shadow:none;" onclick="uiSelectVisibility('public')">CÔNG KHAI</button>
+                    <button class="btn-core ui-btn ww-vis-btn" id="btn-vis-private" style="flex:1; height:40px; background:#555; color:#aaa; box-shadow:none;" onclick="uiSelectVisibility('private')">RIÊNG TƯ</button>
+                </div>
+
+                <div id="ww-private-pass-container" style="display:none; margin-bottom:15px;">
+                    <input type="password" id="ww-create-password" class="custom-input-field" placeholder="Nhập mật lệnh (Pass) phòng..." style="text-align: center;">
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-core ui-btn" style="width:40%; height:45px; background:#e74c3c; color:#fff;" onclick="uiBackToStep1()">QUAY LẠI</button>
+                    <button class="btn-core ui-btn" id="btn-final-create" style="width:60%; height:45px; background:#333; color:#777; cursor:not-allowed;" disabled onclick="executeCreateRoom()">TẠO PHÒNG</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-join">
+        <div class="dialog-box" style="width: 380px;">
+            <div class="close-btn ui-btn" onclick="closeWwJoinModal()">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:15px;">TÌM KIẾM SẢNH</h2>
+
+            <div style="background: rgba(0,0,0,0.5); border: 1px solid #d4af37; border-radius: 8px; padding: 10px; margin-bottom: 15px;">
+                <h3 style="color:#f1c40f; font-size: 13px; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px;">Sảnh Công Khai Đang Mở:</h3>
+                
+                <div id="ww-public-rooms-list" style="max-height: 150px; overflow-y: auto; padding-right: 5px;">
+                    <p style="color: #aaa; text-align: center; font-size: 12px; font-style: italic;">Đang dò tìm vượng khí...</p>
+                </div>
+            </div>
+
+            <hr style="border: 0.5px solid #6b0000; margin-bottom: 15px;">
+
+            <button class="btn-core ui-btn" style="width:100%; height:45px; background:#9b59b6; color:#fff; box-shadow: 0 4px 0 #673ab7;" onclick="closeModal('overlay-ww-join'); openModal('overlay-ww-join-code');">🔑 NHẬP MÃ (VÀO NHANH)</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-join-code" style="z-index: 100000;">
+        <div class="dialog-box" style="width: 340px;">
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:15px;">VÀO NHANH BẰNG MÃ</h2>
+            <p style="color:#fff; text-align:center; font-size:12px; margin-bottom:10px;">Chỉ dùng cho các sảnh Công Khai.</p>
+            <input type="text" id="join-public-id" class="custom-input-field" placeholder="Nhập mã phòng (Ví dụ: 123456)..." style="margin-bottom:15px; text-align:center; padding: 12px; font-size: 13px;">
+            
+            <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                <button class="btn-core ui-btn" style="width:35%; height:40px; background:#555; color:#fff; font-size: 12px;" onclick="closeModal('overlay-ww-join-code'); openModal('overlay-ww-join');">QUAY LẠI</button>
+                <button class="btn-core ui-btn" style="width:65%; height:40px; background:#2ecc71; color:#fff; font-size: 12px;" onclick="executeJoinPublicCode()">XÁC NHẬN VÀO</button>
+            </div>
+            
+            <hr style="border: 0.5px solid #6b0000; margin-bottom: 10px;">
+            <button class="btn-core ui-btn" style="width:100%; height:40px; background:#e74c3c; color:#fff; font-size: 12px; box-shadow: 0 4px 0 #c0392b;" onclick="closeModal('overlay-ww-join-code'); openModal('overlay-ww-private-join');">🔒 ĐẾN PHÒNG RIÊNG TƯ</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-private-join" style="z-index: 100000;">
+        <div class="dialog-box" style="width: 340px;">
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:15px;">MẬT LỆNH BÍ TRUYỀN</h2>
+            <p style="color:#fff; text-align:center; font-size:12px; margin-bottom:10px;">Vui lòng nhập Mã phòng và Mật lệnh.</p>
+            <input type="text" id="join-private-id" class="custom-input-field" placeholder="Nhập mã phòng (Ví dụ: 123456)..." style="margin-bottom:10px; text-align:center; padding: 12px; font-size: 13px;">
+            <input type="text" id="join-private-code" class="custom-input-field" placeholder="Mật lệnh phòng..." style="margin-bottom:15px; text-align:center; padding: 12px; font-size: 13px;">
+            <div style="display:flex; gap:10px;">
+                <button class="btn-core ui-btn" style="width:40%; height:40px; background:#555; color:#fff; font-size: 12px;" onclick="closeModal('overlay-ww-private-join'); openModal('overlay-ww-join-code');">QUAY LẠI</button>
+                <button class="btn-core ui-btn" style="width:60%; height:40px; background:#e74c3c; color:#fff; font-size: 12px;" onclick="executeJoinPrivate()">TIẾN VÀO</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-werewolf-lobby">
+        <div class="dialog-box" style="width: 400px;">
+            <div class="close-btn ui-btn" onclick="leaveWerewolfRoom(false)">✕</div>
+            <h2 style="color:var(--game-text-color); text-align:center; margin-bottom:15px; text-shadow: 0 0 10px var(--game-text-color);">SẢNH MA SÓI</h2>
+            
+            <div class="lobby-panel">
+                <div class="lobby-info-box" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="color:#f1c40f; font-weight:bold;">Mã: <span id="ww-display-room-id" style="color:#fff; font-size:16px;">---</span></span>
+                            <button class="btn-core ui-btn" style="width: 30px; height: 22px; font-size: 10px; padding: 0; margin-left: 8px; box-shadow:none; border-radius: 4px;" onclick="copyRoomId()" title="Sao chép mã phòng">📋</button>
+                        </div>
+                        <span style="color:#2ecc71; font-weight:bold; font-size:12px; border: 1px solid #2ecc71; padding: 3px 6px; border-radius: 5px;" id="ww-display-mode">CƠ BẢN</span>
+                    </div>
+                    <div id="ww-display-pass" style="color:#bdc3c7; font-size:12px; font-style:italic; display:none;">Mật lệnh: ***</div>
+                </div>
+                
+                <div>
+                    <h3 style="color:#ffd700; font-size: 14px; margin-bottom: 5px;">Người chơi:</h3>
+                    <div class="player-list-container" id="ww-player-list"></div>
+                </div>
+
+                <div class="chat-box-container">
+                    <div class="chat-messages" id="ww-chat-box"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="ww-chat-input" class="chat-input" placeholder="Nhắn tin sảnh...">
+                        <button class="btn-core ui-btn" style="width: 70px; height: 38px; font-size: 12px; margin: 0; box-shadow: none;" onclick="sendWwChatMessage()">GỬI</button>
+                    </div>
+                </div>
+
+                <button class="btn-core ui-btn" id="btn-start-ww-game" style="width:100%; height:45px; font-size:16px; margin-top: 10px; background: #333; color: #777; display: none; cursor:not-allowed;" disabled onclick="startWerewolfGame()">BẮT ĐẦU (CHỜ SẴN SÀNG)</button>
+                <button class="btn-core ui-btn" id="btn-ready-ww" style="width:100%; height:45px; font-size:16px; margin-top: 10px; background: #f39c12; color: #fff; display: none;" onclick="toggleReadyState()">CHƯA SẴN SÀNG</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-copy-success" style="z-index: 200000;">
+        <div class="dialog-box" style="width: 300px; text-align: center; border: 2px solid #2ecc71; box-shadow: 0 0 30px rgba(46, 204, 113, 0.4);">
+            <h2 style="color:#2ecc71; margin-bottom:15px;">THÀNH CÔNG</h2>
+            <p id="copy-success-desc" style="color:#fff; font-size:14px; margin-bottom:20px; line-height: 1.5;"></p>
+            <button class="btn-core ui-btn" style="width:100%; height:45px; font-size:16px; background:#2ecc71; color:#fff;" onclick="closeModal('overlay-copy-success')">OK</button>
+        </div>
+    </div>
+
+    <div id="ww-gameplay-screen" class="screen-container ww-day-bg">
+        <button class="btn-core btn-back-hub ui-btn" style="width: 90px; height: 30px; font-size: 10px; position: absolute; top: 10px; left: 10px; margin: 0; z-index: 100;" onclick="leaveWerewolfRoom(false)">THOÁT</button>
+        
+        <div style="width: 90%; max-width: 400px; text-align: center; margin-top: 50px;">
+            <h2 id="ww-phase-title" style="color: #ffd700; font-size: 24px; text-transform: uppercase;">BAN NGÀY</h2>
+            <div id="ww-timer-display" class="ww-timer-text">00:00</div>
+            
+            <div class="chat-box-container" id="ww-ingame-chat-container" style="background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px;">
+                <div class="chat-messages" id="ww-ingame-chat-box" style="height: 120px;"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="ww-ingame-chat-input" class="chat-input" placeholder="Thảo luận...">
+                    <button class="btn-core ui-btn" style="width: 60px; height: 38px; font-size: 12px; margin: 0; box-shadow: none;" onclick="sendWwInGameMessage()">GỬI</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px; text-align: left;">
+                <h3 style="color:#ffd700; font-size: 14px; margin-bottom: 5px;">Tình Trạng Thôn Làng:</h3>
+                <div class="ww-target-grid" id="ww-ingame-player-grid"></div>
+                <button class="btn-core ui-btn" id="ww-btn-vote-day" style="width:100%; height:40px; font-size:14px; margin-top: 10px; background: #e74c3c; color: #fff; display:none;" onclick="confirmDayVote()">CHỐT VOTE (TREO CỔ)</button>
+            </div>
+
+            <div id="ww-game-area" style="padding: 10px; background: #1a0000; border: 1px dashed #ffd700; border-radius: 8px; text-align: center; margin-top: 15px;">
+                <p style="color: #fff; font-size: 12px; margin-bottom: 5px;">Vai trò của bạn:</p>
+                <div id="ww-my-card" class="ww-card facedown" style="transform: scale(0.8);" onclick="flipMyWwCard()">BÍ MẬT</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-action">
+        <div class="dialog-box" style="width: 360px;">
+            <h2 id="ww-action-title" style="color:var(--game-text-color); text-align:center; margin-bottom:10px;">BẠN MUỐN LÀM ĐIỀU NÀY VỚI AI?</h2>
+            <p id="ww-action-desc" style="color:#fff; text-align:center; margin-bottom: 15px; font-size: 13px;">Hãy chọn một mục tiêu trong đêm nay.</p>
+            <div class="ww-target-grid" id="ww-action-grid"></div>
+            <button class="btn-core ui-btn" id="btn-confirm-action" style="width:100%; height:45px; font-size:14px; margin-top: 20px;" onclick="submitNightAction()">XÁC NHẬN</button>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="overlay-ww-villager">
+        <div class="dialog-box" style="width: 360px; text-align: center;">
+            <h2 style="color:var(--game-text-color); margin-bottom:15px;">MÀN ĐÊM TĨNH LẶNG</h2>
+            <p style="color:#fff; line-height: 1.6; margin-bottom: 20px;">Bạn là một thường dân. Bạn không có khả năng thức dậy lúc này. Hãy ngủ thật ngon và hi vọng mình sẽ bình an vào sáng ngày mai. Tiếng sói tru ngoài kia thật đáng sợ...</p>
+            <button class="btn-core ui-btn" id="btn-villager-sleep" style="width:100%; height:45px; font-size:16px;" onclick="confirmVillagerSleep()">ĐI NGỦ (XÁC NHẬN)</button>
+        </div>
+    </div>
+    
+    <script src="./js/core/utils.js"></script>
+    <script src="./js/core/db.js"></script>
+    <script src="./js/core/audio.js"></script>
+    
+    <script src="./js/features/firebase.js"></script>
+    <script src="./js/features/music.js"></script>
+    <script src="./js/features/ui.js"></script>
+    
+    <script src="./js/games/offline/snake.js"></script>
+    <script src="./js/games/offline/tetris.js"></script>
+    <script src="./js/games/offline/chicken.js"></script>
+    <script src="./js/games/offline/tranhba.js"></script>
+    
+    <script src="./js/games/online/werewolf.js"></script>
+    <script src="./js/games/online/uno.js"></script>
+    <script src="./js/games/online/meono.js"></script>
+    <script src="./js/games/online/tienlen.js"></script>
+    <script src="./js/games/online/xidach.js"></script>
+
+    <script src="./js/main.js"></script>
+</body>
+</html>

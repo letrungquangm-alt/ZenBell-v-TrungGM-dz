@@ -1,0 +1,424 @@
+/* ========================================= */
+/* 1. BIẾN MÔI TRƯỜNG, THANH CUỘN VÀ NỀN     */
+/* ========================================= */
+:root {
+    --game-bg-color: #2b0000;
+    --game-board-color: #4a0000;
+    --game-border-color: #ffd700;
+    --game-text-color: #f1c40f;
+    --game-btn-color: #d4af37;
+    --game-btn-shadow: #8a6a1c;
+    --card-red: #e74c3c;
+    --card-black: #2d3436;
+    --card-width: 45px;
+    --card-height: 65px;
+    --custom-card-back: url('../image/Locket_1772905974882_44.jpg');
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #2b0000; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 4px; box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5); }
+::-webkit-scrollbar-thumb:hover { background: #ffdf00; }
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #ffd700 #2b0000;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--game-bg-color);
+    background-image: url('../image/Locket_1772905858887_49.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: #ffffff;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background 0.5s ease;
+}
+
+#bg-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+    display: none;
+}
+
+/* ========================================= */
+/* 2. MÀN HÌNH CHÍNH & TYPOGRAPHY            */
+/* ========================================= */
+.screen-container {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, rgba(74, 0, 0, 0.95) 0%, #1a0000 100%);
+    z-index: 10000;
+}
+
+#main-hub-screen { display: flex; }
+#game-screen { background: transparent; z-index: 5000; }
+
+.title-wrapper { text-align: center; margin-bottom: 40px; width: 100%; padding: 0 10px; }
+
+.title-main {
+    font-size: clamp(28px, 9vw, 42px);
+    font-weight: 900;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ffd700, #ffdf00, #fff8dc, #ffdf00, #ffd700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shineEffect 3s linear infinite, waveEffect 3s ease-in-out infinite;
+    line-height: 1.3;
+    text-shadow: 0px 5px 15px rgba(0, 0, 0, 0.8);
+    display: block;
+}
+
+@keyframes shineEffect { to { background-position: 200% center; } }
+@keyframes waveEffect { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.title-sub {
+    font-size: 13px;
+    color: #f1c40f;
+    letter-spacing: 6px;
+    margin-top: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* ========================================= */
+/* 3. NÚT BẤM (BUTTONS) & CHUYỂN CẢNH        */
+/* ========================================= */
+.menu-btn-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+.btn-core {
+    width: 250px;
+    height: 65px;
+    background: var(--game-btn-color);
+    color: #2b0000;
+    border: none;
+    border-radius: 35px;
+    font-size: 20px;
+    font-weight: 900;
+    box-shadow: 0 8px 0px var(--game-btn-shadow), 0 15px 20px rgba(0, 0, 0, 0.8);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s, color 0.2s;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.btn-core:active {
+    box-shadow: 0 2px 0px var(--game-btn-shadow), 0 5px 10px rgba(0, 0, 0, 0.8);
+    transform: translateY(6px);
+}
+
+.btn-core::after {
+    content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: skewX(-25deg);
+    animation: metalShineAnim 6s infinite;
+}
+
+@keyframes metalShineAnim { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+.btn-back-hub {
+    width: 200px; height: 50px; font-size: 16px; background: #6b0000; color: #ffd700;
+    box-shadow: 0 6px 0px #3b0000, 0 10px 15px rgba(0, 0, 0, 0.5);
+    margin-top: 30px; border: 1px solid #ffd700;
+}
+.btn-back-hub:active { box-shadow: 0 2px 0px #3b0000, 0 5px 10px rgba(0, 0, 0, 0.5); }
+
+.btn-scale-odd { animation: pulseA 1.5s infinite ease-in-out; }
+.btn-scale-even { animation: pulseB 1.5s infinite ease-in-out; }
+
+@keyframes pulseA { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes pulseB { 0%, 100% { transform: scale(1.05); } 50% { transform: scale(1); } }
+
+#water-drop-fx {
+    position: fixed; top: 50%; left: 50%; width: 10px; height: 10px;
+    background: rgba(255, 215, 0, 0.9); border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0); z-index: 25000; pointer-events: none; display: none;
+}
+.water-drop-active { display: block !important; animation: liquidSplash 0.5s ease-out forwards; }
+@keyframes liquidSplash { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(50); opacity: 0; } }
+
+#glow-transition {
+    position: fixed; inset: 0; background: var(--game-btn-color); z-index: 24000;
+    opacity: 0; pointer-events: none; display: none;
+}
+
+/* ========================================= */
+/* 4. CHỌN TƯỚNG & BÀN CỜ ĐUA XÌ             */
+/* ========================================= */
+.card-select-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; justify-items: center; margin: 0 auto; }
+@keyframes shakeHover { 0% { transform: scale(1.1) rotate(-3deg); } 50% { transform: scale(1.1) rotate(3deg); } 100% { transform: scale(1.1) rotate(-3deg); } }
+
+.selectable-card {
+    width: 80px; height: 120px; background-color: #2b0000; background-size: cover; background-position: center;
+    border-radius: 8px; display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8); cursor: pointer; position: relative;
+    border: 4px solid transparent; filter: brightness(0.4);
+    transition: filter 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; color: transparent;
+}
+.selectable-card:hover, .selectable-card:active {
+    filter: brightness(1); animation: shakeHover 0.15s infinite; z-index: 10;
+    box-shadow: 0 15px 30px rgba(255, 215, 0, 0.6); border-color: var(--game-border-color);
+}
+
+.board-container {
+    width: 95vw; max-width: 360px; aspect-ratio: 2 / 3; height: auto; max-height: 65vh;
+    border: 4px solid var(--game-border-color); background: var(--game-board-color);
+    border-radius: 16px; position: relative; overflow: hidden; box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9); margin: 0 auto;
+}
+
+.visual-grid { display: grid; grid-template-rows: repeat(7, 1fr); width: 100%; height: 100%; position: absolute; inset: 0; }
+.visual-row { display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid rgba(255, 215, 0, 0.1); }
+.visual-cell { border-right: 1px solid rgba(255, 215, 0, 0.1); }
+.visual-trap-cell { background: rgba(255, 215, 0, 0.05); border-right: none; }
+#entity-layer { position: absolute; inset: 0; z-index: 10; }
+
+.card-actor {
+    width: var(--card-width); height: var(--card-height); background-color: #2b0000;
+    border-radius: 6px; border: 2px solid #d4af37; position: absolute;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.7); z-index: 50; background-size: cover; background-position: center; color: transparent;
+}
+.card-name-tag { position: absolute; top: -16px; font-size: 8px; color: var(--game-text-color); font-weight: 900; text-transform: uppercase; white-space: nowrap; text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.9); z-index: 55; }
+
+.trap-actor {
+    width: var(--card-width); height: var(--card-height); background-color: #2b0000; border: 2px solid var(--game-border-color);
+    color: var(--game-border-color); border-radius: 5px; position: absolute; display: flex; justify-content: center;
+    align-items: center; font-size: 20px; z-index: 40; background-size: cover; background-position: center; font-weight: bold;
+}
+.alert-trap { animation: trapSyncGlow 0.4s infinite alternate; cursor: pointer; pointer-events: auto; }
+@keyframes trapSyncGlow { from { box-shadow: 0 0 2px transparent; } to { box-shadow: 0 0 25px var(--game-border-color); border-color: #ffffff; background: rgba(255, 215, 0, 0.2); } }
+
+.bottom-control-area { margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 130px; }
+.deck-wrapper-3d { width: 70px; height: 100px; perspective: 1000px; cursor: pointer; border-radius: 8px; border: 2px solid var(--game-border-color); }
+.deck-rotator { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; will-change: transform; }
+.deck-card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 8px; border: 3px solid #ffffff; display: flex; justify-content: center; align-items: center; font-size: 40px; color: transparent; background-size: cover; background-position: center; }
+.face-back { background-image: var(--custom-card-back); background-size: cover; background-position: center; background-repeat: no-repeat; }
+.face-front { background-color: #2b0000; transform: rotateY(180deg); }
+
+#system-status-msg { color: var(--game-text-color); font-weight: 900; font-size: 13px; text-transform: uppercase; margin-top: 5px; text-shadow: 0px 3px 5px rgba(0, 0, 0, 0.9); text-align: center; height: 35px; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 10px; }
+
+/* ========================================= */
+/* 5. MODAL (LỚP PHỦ) & CHIẾN THẮNG          */
+/* ========================================= */
+.fullscreen-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.96); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 20000; }
+.dialog-box { position: relative; background: #2b0000; padding: 25px; border-radius: 15px; border: 2px solid var(--game-border-color); width: 360px; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
+.close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #ffd700; cursor: pointer; font-weight: bold; }
+
+.victory-headline { font-size: 45px; font-weight: 900; color: var(--game-text-color); text-shadow: 0 0 30px var(--game-text-color); animation: victoryPulseAnim 1s infinite alternate; margin-bottom: 20px; text-align: center; }
+@keyframes victoryPulseAnim { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+#victory-card-podium { height: 150px; display: flex; justify-content: center; align-items: center; margin: 20px 0; }
+.winner-card-fx { animation: victoryFloatAnim 2s infinite ease-in-out !important; position: relative; overflow: hidden; box-shadow: 0 0 40px var(--game-border-color) !important; border: 2px solid #ffffff; margin: 0 !important; top: auto !important; left: auto !important; }
+.winner-card-fx::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9), transparent); transform: skewX(-20deg); animation: winnerShineLoop 1.5s infinite linear; }
+@keyframes winnerShineLoop { 0% { left: -150%; } 100% { left: 150%; } }
+@keyframes victoryFloatAnim { 0%, 100% { transform: translateY(0) scale(2); } 50% { transform: translateY(-25px) scale(2.1); } }
+#victory-player-name { color: #ffffff; font-size: 20px; font-weight: 900; text-transform: uppercase; text-align: center; margin-top: 30px; margin-bottom: 40px; line-height: 1.5; text-shadow: 0 0 10px #ffd700; }
+.btn-row { display: flex; gap: 15px; }
+
+/* ========================================= */
+/* 6. GAME THÙNG BÁCH HÍ (ARCADE)            */
+/* ========================================= */
+.arcade-container {
+    position: relative; width: 95vw; max-width: 380px; height: 90vh; max-height: 850px; background: #1a0000;
+    border: 4px solid var(--game-border-color); border-radius: 15px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.game-header-bar { width: 100%; height: 40px; padding: 0 15px; background: #3b0000; border-bottom: 2px solid var(--game-border-color); display: flex; justify-content: space-between; align-items: center; color: var(--game-text-color); font-weight: bold; flex-shrink: 0; z-index: 5; }
+.canvas-area { flex-grow: 1; position: relative; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+.canvas-area canvas { width: 100%; height: 100%; object-fit: fill; background: #0a0000; touch-action: none; display: block; }
+.arcade-controls-panel { height: 190px; flex-shrink: 0; background: #2b0000; border-top: 4px solid var(--game-border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; box-sizing: border-box; padding-bottom: 50px; }
+
+.dpad-container { display: grid; grid-template-columns: 55px 55px 55px; grid-template-rows: 55px 55px; gap: 8px; pointer-events: auto; }
+.ctrl-btn { background: rgba(255, 215, 0, 0.15); border: 3px solid rgba(255, 215, 0, 0.7); border-radius: 12px !important; color: rgba(255, 255, 255, 0.95); font-size: 28px; display: flex; justify-content: center; align-items: center; user-select: none; touch-action: manipulation; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8); }
+.ctrl-btn:active { background: rgba(255, 215, 0, 0.8); transform: scale(0.92); color: #000; }
+.btn-up-class { grid-column: 2; grid-row: 1; } .btn-left-class { grid-column: 1; grid-row: 2; } .btn-down-class { grid-column: 2; grid-row: 2; } .btn-right-class { grid-column: 3; grid-row: 2; }
+
+.action-container { display: flex; align-items: flex-end; pointer-events: auto; }
+.btn-a-class { width: 80px; height: 80px; border-radius: 50% !important; background: rgba(255, 215, 0, 0.15); border: 4px solid rgba(255, 215, 0, 0.7); color: rgba(255, 255, 255, 0.95); font-size: 36px; font-weight: bold; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8); touch-action: manipulation; }
+.btn-a-class:active { background: rgba(255, 215, 0, 0.8); transform: scale(0.9); color: #000; }
+
+.game-over-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.85); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 20000; }
+.game-over-text { font-size: 38px; color: #e74c3c; font-weight: 900; text-shadow: 0 0 15px #ff0000; margin-bottom: 10px; text-transform: uppercase; }
+.final-score-text { font-size: 22px; color: #fff; margin-bottom: 30px; font-weight: bold; }
+
+/* ========================================= */
+/* 7. SETTINGS & KHO NHẠC TIÊN CUNG          */
+/* ========================================= */
+.custom-input-field { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #6b0000; background: #1a0000; color: #ffffff; font-size: 14px; outline: none; text-align: center; margin: 20px 0; transition: border-color 0.3s, box-shadow 0.3s; }
+.custom-input-field:focus { border-color: var(--game-border-color); box-shadow: 0 0 15px var(--game-border-color); }
+.settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--game-text-color); font-weight: bold; font-size: 14px; }
+.settings-row input[type="color"] { width: 50px; height: 30px; border: 1px solid #ffffff; background: transparent; cursor: pointer; }
+.settings-row input[type="range"] { width: 120px; accent-color: var(--game-border-color); }
+.file-label { background: #6b0000; padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid var(--game-text-color); font-size: 12px; color: #ffffff; display: inline-block; text-align: center; }
+#settings-trigger-btn { position: fixed; top: 15px; right: 15px; font-size: 28px; z-index: 25000; cursor: pointer; text-shadow: 0 0 10px #000; }
+
+.music-carousel-wrapper { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; display: flex; gap: 0; padding-bottom: 10px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+.music-page { min-width: 100%; scroll-snap-align: start; display: flex; flex-direction: column; gap: 10px; padding: 0 5px; }
+.pagination-container { display: flex; justify-content: center; gap: 5px; margin-top: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+.page-btn { background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+.page-btn.active { background: var(--game-border-color); color: #000; border-color: var(--game-border-color); }
+
+.music-item-row { background: #1e0000; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
+.music-left-group { display: flex; align-items: center; gap: 10px; width: 55%; overflow: hidden; }
+.music-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #ffd700; display: none; }
+.delete-mode-active .music-checkbox { display: inline-block; }
+.music-name-txt { font-weight: bold; font-size: 13px; color: var(--game-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.3s; }
+.music-actions-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 10px; }
+.music-actions-row { display: flex; gap: 10px; width: 100%; justify-content: space-between; }
+.btn-music-config { width: 28px; height: 30px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.3s ease; border: 1px solid transparent; }
+
+@keyframes rgbBorderGlow { 0% { border-color: #ff0000; box-shadow: 0 0 15px #ff0000; } 33% { border-color: #ffd700; box-shadow: 0 0 15px #ffd700; } 66% { border-color: #ff8c00; box-shadow: 0 0 15px #ff8c00; } 100% { border-color: #ff0000; box-shadow: 0 0 15px #ff0000; } }
+.music-row-rgb { animation: rgbBorderGlow 2.5s linear infinite !important; background: #2a0000 !important; transform: scale(1.02); z-index: 2; }
+.music-row-rgb .music-name-txt { color: #ffffff !important; text-shadow: 0 0 8px #ffffff; }
+.music-row-dimmed { background: #0a0000 !important; border-color: #333 !important; opacity: 0.6; }
+.music-row-dimmed .music-name-txt { color: #666 !important; }
+.btn-shuffle-active { background: var(--game-btn-color) !important; color: #000 !important; box-shadow: 0 0 20px var(--game-btn-color), 0 5px 0 var(--game-btn-shadow) !important; animation: pulseA 1.5s infinite ease-in-out; }
+
+.stealth-player-panel { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 12px 15px; margin-top: 15px; display: flex; flex-direction: column; gap: 8px; }
+.stealth-btn { background: transparent; border: none; color: var(--game-text-color); font-weight: bold; cursor: pointer; outline: none; transition: transform 0.1s; }
+.stealth-btn:active { transform: scale(0.8); }
+.btn-play-stealth { width: 35px; height: 35px; border-radius: 50%; background: var(--game-border-color); color: #000; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); font-size: 16px; }
+.stealth-time { font-family: monospace; color: #f1c40f; font-size: 9px !important; -webkit-text-size-adjust: none; }
+.stealth-seek { flex: 1; height: 4px; border-radius: 2px; accent-color: var(--game-border-color); cursor: pointer; background: #444; -webkit-appearance: none; }
+.stealth-seek::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--game-btn-color); box-shadow: 0 0 5px #000; }
+.speed-drag-box, #btn-skip-ad { font-size: 9px !important; -webkit-text-size-adjust: none; }
+.speed-drag-box { background: rgba(255, 255, 255, 0.1); border: 1px dashed rgba(255, 215, 0, 0.5); padding: 2px 4px; border-radius: 4px; font-weight: bold; color: var(--game-text-color); cursor: ew-resize; user-select: none; touch-action: none; text-align: center; }
+
+@keyframes marquee-rtl { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+.marquee-container { width: 100%; overflow: hidden; white-space: nowrap; position: relative; margin-bottom: 10px; }
+.marquee-content { display: inline-block; animation: marquee-rtl 7s linear infinite; font-size: 12px; color: #ffd700; font-weight: bold; text-shadow: 0 0 5px rgba(0, 0, 0, 0.8); }
+
+/* ========================================= */
+/* 8. MA SÓI & ONLINE (TỤ NGHĨA ĐƯỜNG)       */
+/* ========================================= */
+.diff-btn { width: 100%; height: 50px; margin-bottom: 12px; font-size: 16px; font-weight: bold; color: #2b0000; border: none; border-radius: 25px; cursor: pointer; box-shadow: 0 5px 0 rgba(0, 0, 0, 0.5); transition: transform 0.1s; }
+.diff-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5); }
+.diff-1 { background: #2ecc71; } .diff-2 { background: #f1c40f; } .diff-3 { background: #e67e22; } .diff-4 { background: #e74c3c; color: #fff; }
+
+.tab-btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab-btn { flex: 1; padding: 12px 0; background: #6b0000; color: #fff; border: 1px solid var(--game-border-color); border-radius: 8px; font-weight: bold; cursor: pointer; }
+.tab-btn.active { background: var(--game-btn-color); color: #000; }
+.tab-content { display: none; text-align: left; font-size: 14px; line-height: 1.6; color: #fff8dc; }
+.tab-content.active { display: block; }
+.rule-hl { color: var(--game-text-color); font-weight: bold; }
+
+.name-inputs-wrapper { display: flex; flex-direction: column; gap: 15px; width: 85%; max-width: 320px; margin: 0 auto; }
+.name-inputs-wrapper input { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #d4af37; background: #1a0000; color: #ffffff; font-size: 16px; outline: none; text-align: center; opacity: 0; animation: borderGlowSync 4s infinite alternate; }
+@keyframes borderGlowSync { 0% { box-shadow: 0 0 5px #d4af37; } 100% { box-shadow: 0 0 20px #d4af37; } }
+
+.game-grid-5 { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+.game-slot-btn { background: #1a0000; border: 2px solid var(--game-border-color); color: var(--game-text-color); padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: transform 0.1s, box-shadow 0.1s; box-shadow: 0 4px 0 #8a6a1c; }
+.game-slot-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 #8a6a1c; }
+
+.ww-day-bg { background: radial-gradient(circle at center, #2c3e50 0%, #000000 100%) !important; }
+.ww-night-bg { background: radial-gradient(circle at center, #0B0C10 0%, #000000 100%) !important; }
+
+.lobby-panel { display: flex; flex-direction: column; gap: 15px; text-align: left; }
+.lobby-info-box { background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 8px; border: 1px dashed var(--game-border-color); display: flex; justify-content: space-between; align-items: center; }
+.player-list-container { max-height: 120px; overflow-y: auto; background: #1a0000; padding: 10px; border-radius: 5px; border: 1px solid #6b0000; }
+.player-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 14px; color: #fff; padding: 5px; border-radius: 4px; }
+.player-status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 5px #2ecc71; margin-right: 10px; }
+
+.chat-box-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.chat-messages { height: 150px; background: #0a0000; border: 1px solid #4a0000; border-radius: 5px; padding: 10px; overflow-y: auto; font-size: 13px; }
+.chat-msg { margin-bottom: 5px; line-height: 1.4; }
+.chat-msg .sender { color: var(--game-border-color); font-weight: bold; }
+.chat-input-row { display: flex; gap: 5px; }
+.chat-input { flex: 1; padding: 10px; background: #1a0000; border: 1px solid var(--game-border-color); color: #fff; border-radius: 5px; outline: none; }
+
+.ww-card { display: inline-block; width: 80px; height: 110px; background: #2b0000; border: 2px solid var(--game-border-color); border-radius: 8px; margin: 5px; line-height: 110px; text-align: center; font-weight: bold; font-size: 14px; color: #fff; vertical-align: top; cursor: pointer; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8); transition: transform 0.3s; }
+.ww-card:hover { transform: scale(1.05); }
+.ww-card.facedown { background: url('../image/Locket_1772905974882_44.jpg') center/cover; color: transparent; }
+
+.ww-target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 200px; overflow-y: auto; }
+.ww-target-btn { background: #2b0000; border: 2px solid #444; color: #fff; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; transition: all 0.2s; }
+.ww-target-btn.selected { border-color: #ffd700; background: rgba(255, 215, 0, 0.2); box-shadow: 0 0 15px #ffd700; }
+.ww-target-btn.dead { opacity: 0.3; pointer-events: none; text-decoration: line-through; }
+
+.ww-timer-text { font-size: 30px; font-weight: 900; color: #e74c3c; text-align: center; text-shadow: 0 0 10px #e74c3c; margin: 10px 0; }
+.ww-transition-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 40px; font-weight: 900; color: #fff; text-shadow: 0 0 20px #fff; text-align: center; z-index: 30000; pointer-events: none; opacity: 0; }
+/* ========================================= */
+/* CSS CHO HỆ THỐNG PHÒNG CHỜ ESPORTS        */
+/* ========================================= */
+
+/* Trạng thái mặc định của các nút chọn */
+.ww-mode-btn, .ww-vis-btn {
+    transition: all 0.3s ease;
+}
+
+/* Trạng thái nút khi được chọn (Hiệu ứng Dính/Sáng lên) */
+.ww-mode-btn.active, .ww-vis-btn.active {
+    background: #2ecc71 !important;
+    color: #fff !important;
+    border: 1px solid #27ae60 !important;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.5) !important;
+    transform: scale(1.05);
+}
+
+/* Nút xác nhận bị KHÓA (Khi chưa chọn gì) */
+.btn-locked {
+    background: #222 !important;
+    color: #555 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    opacity: 0.7;
+}
+
+/* Nút xác nhận được MỞ KHÓA (Sẵn sàng bấm) */
+.btn-unlocked {
+    background: #e74c3c !important;
+    color: #fff !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 0 #c0392b !important;
+    animation: pulseGlow 1.5s infinite; /* Hiệu ứng chớp nháy nhẹ gây chú ý */
+}
+
+/* Hiệu ứng nhịp đập cho nút mở khóa */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+/* Làm đẹp thanh cuộn cho Danh sách phòng Công khai */
+#ww-public-rooms-list::-webkit-scrollbar {
+    width: 6px;
+}
+#ww-public-rooms-list::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.3);
+    border-radius: 5px;
+}
+#ww-public-rooms-list::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 5px;
+}

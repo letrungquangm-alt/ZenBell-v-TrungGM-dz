@@ -1,0 +1,21 @@
+/DeNhatBinhThienHa
+  ├── index.html
+  ├── /css
+  │    └── style.css          (Toàn bộ giao diện)
+  ├── /js
+  │    ├── /core
+  │    │    ├── utils.js      (Các hàm tiện ích dùng chung)
+  │    │    ├── audio.js      (Hệ thống âm thanh)
+  │    │    └── db.js         (Xử lý IndexedDB lưu nhạc)
+  │    ├── /features
+  │    │    ├── ui.js         (Chuyển màn hình, modal, cài đặt)
+  │    │    ├── music.js      (Trình phát nhạc, YouTube API)
+  │    │    └── firebase.js   (Kết nối DB, logic sảnh Ma Sói)
+  │    ├── /games
+  │    │    ├── snake.js      (Ngự Xà)
+  │    │    ├── tetris.js     (Xếp Thành)
+  │    │    ├── chicken.js    (Bắn Kê)
+  │    │    └── tranhba.js    (Game cờ chính Đua Xì)
+  │    └── main.js            (Khởi tạo game, gán sự kiện tổng)
+  ├── /image
+  └── /music
