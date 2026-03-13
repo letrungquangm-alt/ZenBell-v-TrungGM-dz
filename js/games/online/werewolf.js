@@ -2,7 +2,7 @@
 // LOGIC GAME MA SÓI (ONLINE) - HOÀN CHỈNH BẤT BẠI
 // =========================================
 
-let currentWwRoomId = null;
+var currentWwRoomId = null;
 let currentWwPlayerId = null;
 let isWwHost = false;
 let wwMode = "basic";
