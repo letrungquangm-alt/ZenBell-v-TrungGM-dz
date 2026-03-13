@@ -1,5 +1,5 @@
 // =========================================
-// LOGIC GAME MA SÓI (ONLINE) - HOÀN CHỈNH BẤT BẠI
+// LOGIC GAME MA SÓI (ONLINE) - HOÀN CHỈNH 100%
 // =========================================
 
 let currentWwRoomId = null;
@@ -24,7 +24,6 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// --- UI FLOW: VÀO HUB ONLINE ---
 function safeOpenOnlineHub() {
     let activeTab = localStorage.getItem('ww_active_tab');
     if (activeTab && activeTab !== myTabId) {
@@ -33,7 +32,7 @@ function safeOpenOnlineHub() {
     }
     localStorage.setItem('ww_active_tab', myTabId);
     playSfx('click'); 
-    openModal('overlay-online-name'); // Mở bảng báo danh
+    openModal('overlay-online-name'); 
 }
 
 function proceedToOnlineGames() { 
@@ -43,7 +42,7 @@ function proceedToOnlineGames() {
         return; 
     } 
     playSfx('click'); 
-    window.onlinePlayerName = nameInput; // Lưu tên vào biến toàn cục
+    window.onlinePlayerName = nameInput; 
     document.getElementById('display-greeting-name').innerText = "Chào bạn, " + window.onlinePlayerName + "!"; 
     closeModal('overlay-online-name'); 
     openModal('overlay-online-games'); 
@@ -62,7 +61,7 @@ function showUpdatingModal() {
     customAlert("THÔNG BÁO", "Bí cảnh này đang được kiến tạo, vui lòng quay lại sau!", "ĐÃ RÕ");
 }
 
-// --- UI FLOW: MENU MA SÓI ---
+// --- UI FLOW ---
 function openWwMenu() {
     playSfx('click'); closeModal('overlay-online-games'); openModal('overlay-ww-menu');
 }
@@ -125,7 +124,7 @@ function uiSelectVisibility(vis) {
     }
 }
 
-// --- TẠO PHÒNG CÓ ĐẶT TÊN ---
+// --- TẠO PHÒNG ---
 function executeCreateRoom() {
     if (wwVisibility === 'private') {
         const pwdInput = document.getElementById('ww-create-password');
@@ -225,7 +224,7 @@ function executeJoinPrivate() {
     let inputPass = document.getElementById('join-private-code').value.trim();
     
     if(!inputId || !inputPass) { 
-        customAlert("THÔNG BÁO", "Vui lòng nhập đủ 6 số Mã phòng và Mật lệnh!", "OK"); 
+        customAlert("THÔNG BÁO", "Vui lòng nhập đủ Mã phòng và Mật lệnh!", "OK"); 
         return; 
     }
     
@@ -300,9 +299,7 @@ function finalizeJoinRoomUI() {
         btnReady.innerText = "CHƯA SẴN SÀNG"; btnReady.style.background = "#f39c12";
     }
     
-    // Lấy tên từ file firebase.js
     let pName = typeof window.onlinePlayerName !== 'undefined' && window.onlinePlayerName !== "" ? window.onlinePlayerName : "Khách";
-    
     const playerRef = database.ref(`rooms/${currentWwRoomId}/players/${currentWwPlayerId}`);
     playerRef.set({ name: pName, isHost: isWwHost, role: '', isReady: isWwHost, hasRevealed: false, status: 'online' }); 
     
@@ -386,7 +383,6 @@ function setupLobbyListeners() {
     }
 }
 
-// --- BẢNG THÔNG BÁO COPY ĐẸP MẮT ---
 function copyRoomId() {
     let copyText = "Mã phòng: " + (currentWwRoomId ? currentWwRoomId.split(':')[1] : "");
     let successMsg = "Bạn đã sao chép thành công ID phòng";
