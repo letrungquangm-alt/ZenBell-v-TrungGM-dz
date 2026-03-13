@@ -1,8 +1,8 @@
 ======================================
 tải lên github
 ======================================
-git add tenfile.duoifile
-git add . 
+git add tenfile.duoifile (chỉ riêng file đó)
+git add . (là toàn bộ)
 
 git commit -m "Thông báo"
 
