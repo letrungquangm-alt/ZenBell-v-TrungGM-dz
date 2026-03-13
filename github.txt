@@ -1,5 +1,56 @@
+======================================
+tải lên github
+======================================
 git add tenfile.duoifile
 git add . 
 
 git commit -m "Thông báo"
+
 git push origin main
+
+======================================
+kho bách khoa tàng thư
+======================================
+git init: Biến thư mục hiện tại thành kho chứa Git (repository)
+git clone <url_github>: Tải toàn bộ source code từ một kho trên mạng về máy tính
+git status: Kiểm tra trạng thái các file (đã sửa, mới thêm, nhánh hiện tại)
+git add .: Đưa toàn bộ các file vừa sửa/thêm vào khu vực chờ (staging area)
+git commit -m "Lời nhắn": Lưu lại mốc lịch sử thay đổi hiện tại với lời nhắn
+git push origin <tên_nhánh>: Đẩy code đã commit từ máy tính lên kho chứa trên mạng (VD: GitHub)
+git pull origin <tên_nhánh>: Kéo code mới nhất từ kho trên mạng về cập nhật cho máy tính
+git log: Xem lại lịch sử các lần commit trước đó
+git stash: Cất tạm code đang viết dở để làm sạch môi trường làm việc
+git stash pop: Lấy lại đoạn code đang viết dở đã cất bằng git stash ra để làm tiếp
+git reset --hard: Xóa sạch mọi thay đổi chưa lưu, quay về trạng thái commit gần nhất
+git restore <tên_file>: Hủy bỏ các thay đổi chưa lưu của một file, đưa file về nguyên trạng ban đầu
+git restore --staged <tên_file>: Rút file ra khỏi khu vực chờ (hủy lệnh git add), nhưng vẫn giữ nguyên code ở máy
+git reset --soft HEAD~1: Hủy mốc commit gần nhất nhưng VẪN GIỮ LẠI toàn bộ code bạn vừa sửa
+git reset --hard HEAD~1: Hủy mốc commit gần nhất và XÓA SẠCH code vừa sửa (quay ngược thời gian hoàn toàn)
+git revert <mã_commit>: Tạo ra một commit mới để đảo ngược thay đổi của một commit cũ (An toàn khi đã lỡ push lên mạng)
+git fetch: Tải thông tin cập nhật từ kho chứa trên mạng về máy nhưng CHƯA gộp (merge) vào code hiện tại
+git checkout origin/<tên_nhánh> -- <tên_file>: Tải và ghi đè duy nhất 1 file cụ thể từ GitHub về máy (không ảnh hưởng file khác)
+git pull origin <tên_nhánh>: Tải toàn bộ code mới nhất từ GitHub về và tự động gộp (merge) vào nhánh hiện hành trên máy
+git fetch origin: Tải các thông tin cập nhật từ GitHub về máy nhưng CHƯA gộp vào code hiện tại (dùng để kiểm tra xem trên mạng có gì mới trước khi gộp)
+git clone <url_github>: Tải toàn bộ một kho chứa (repository) từ GitHub về máy tính lần đầu tiên
+======================================
+cái cần làm khi đi đâu đó
+======================================
+b1
+tải và cài git
+
+b2
+git config --global user.name "GM"
+
+b3
+git config --global user.email "letrungquangm@gmail.com"
+
+b4
+git clone https://github.com/letrungquangm-alt/ZenBell-v-TrungGM-dz.git
+
+b5
+ctrl + k o, Chọn đúng cái thư mục ZenBell-v-TrungGM-dz vừa tải về. Xong mở Terminal lên code và dùng Git như bình thường!
+======================================
+tải toàn bộ project không cần lên git
+======================================
+git pull origin <tên_nhánh> ví dụ git pull origin main
+======================================
