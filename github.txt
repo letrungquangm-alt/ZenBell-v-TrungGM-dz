@@ -58,3 +58,23 @@ cd ZenBell-v-TrungGM-dz
 git pull origin <tên_nhánh> ví dụ git pull origin main
 ======================================
 clear để xóa cho sạch
+=====================================
+lười quá à? thế thì nhập cái này đổi
+====================================
+tạo file gmdz.bat rồi cd vô file vừa tạo rồi nhập cái này vô
+
+git config --global user.name "GM"
+git config --global user.email "letrungquangm@gmail.com"
+git clone https://github.com/letrungquangm-alt/ZenBell-v-TrungGM-dz.git
+
+rồi bấm enter
+Lưu ý nha thằng lồn, cái này chỉ đưa về thôi chứ đưa lên 
+
+git add . 
+
+git commit -m "Thông báo"
+
+git push origin main
+
+như này là ăn lồn đó
+====================================
