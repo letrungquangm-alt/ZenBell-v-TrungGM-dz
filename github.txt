@@ -1,0 +1,5 @@
+git add tenfile.duoifile
+git add . 
+
+git commit -m "Thông báo"
+git push origin main
